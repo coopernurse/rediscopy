@@ -99,13 +99,14 @@ func main() {
 func worker(wg *sync.WaitGroup, keyCh chan string, srcClient *redis.Client, destClient *redis.Client) {
 	defer wg.Done()
 	for k := range keyCh {
+		ttl := time.Duration(0)
+		pttl, err := srcClient.PTTL(ctx, k).Result()
+		if err == nil {
+			ttl = pttl
+		}
+
 		v, err := srcClient.Dump(ctx, k).Result()
 		if err == nil {
-			ttl := time.Duration(0)
-			pttl, err := srcClient.PTTL(ctx, k).Result()
-			if err == nil {
-				ttl = pttl
-			}
 			err = destClient.Restore(ctx, k, ttl, v).Err()
 			if err != nil {
 				fmt.Printf("ERROR restoring key: %s err: %v\n", k, err)
