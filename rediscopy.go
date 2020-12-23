@@ -69,7 +69,8 @@ func main() {
 	fmt.Printf("Loading keys from src\n")
 	keys, err := srcClient.Keys(ctx, "*").Result()
 	if err != nil {
-
+		fmt.Printf("ERROR loading keys: %v\n", err)
+		os.Exit(1)
 	}
 
 	fmt.Printf("Loaded %d keys - beginning copy\n", len(keys))
@@ -84,7 +85,7 @@ func main() {
 	total := 0
 	for i, k := range keys {
 		keyCh <- k
-		if i > 0 && i%*statusNum == 0 {
+		if i > 0 && *statusNum > 0 && i%*statusNum == 0 {
 			fmt.Printf("Copied %d keys - last key: %s\n", i, k)
 		}
 		total++
