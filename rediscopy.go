@@ -111,7 +111,11 @@ func worker(wg *sync.WaitGroup, keyCh chan string, srcClient *redis.Client, dest
 				fmt.Printf("ERROR restoring key: %s err: %v\n", k, err)
 			}
 		} else {
-			fmt.Printf("ERROR dumping key: %s err: %v\n", k, err)
+			if err == redis.Nil {
+				fmt.Printf("Skipping missing key: %v\n", k)
+			} else {
+				fmt.Printf("ERROR dumping key: %s err: %v\n", k, err)
+			}
 		}
 	}
 }
